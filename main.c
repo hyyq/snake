@@ -16,37 +16,37 @@ typedef struct node
     int direc;
 }part;
 
-part head,nail;
+part head,nail;//蛇头,蛇尾
 
 typedef struct snake
 {
     part node;
     struct snake *next;
-}sk;
+}sk;//拐点
 
 sk *hsk=NULL;
-int score;
+int score;//得分
 int speed;
-int map[W][H];
+int map[W][H];//地图
 int get_food,erase_nail;
 int old_nail_x,old_nail_y;
 int food[2];
 int oldfood[2];
 
-void init_game();
+void init_game(void);//初始化游戏
 
-int get_key();
+int get_key(void);//获取键盘输入
 
 void create_node(part *head);
 void del_node(part *nail);
-part *get_node();
+part *get_node(void);
 int cmp_node(part *node);
 
 void create_food(int *food);
 
-void refresh();
+void refresh(void);//更新
 
-void end_game(void);
+void end_game(void);//游戏结束处理
 
 int main(int argc, const char *argv[])
 {
@@ -119,12 +119,12 @@ int main(int argc, const char *argv[])
     return 0;
 }
 
-void init_game()
+void init_game(void)
 {
 
 }
 
-int get_key()
+int get_key(void)
 {
     int ch;
     /* delay(speed);
@@ -177,7 +177,7 @@ void del_node(part *nail)
     p=NULL;
 }
 
-part *get_node()
+part *get_node(void)
 {
     if(hsk!=NULL)
         return &(hsk->node);
@@ -196,7 +196,7 @@ void create_food(int *food)
 {
 }
 
-void refresh()
+void refresh(void)
 {
     //darw(head.x,head.y,color);
     if(erase_nail)
