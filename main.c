@@ -12,16 +12,16 @@
 
 typedef struct node
 {
-	int x,y;
-	int direc;
+    int x,y;
+    int direc;
 }part;
 
 part head,nail;
 
 typedef struct snake
 {
-part node;
-struct snake *next;
+    part node;
+    struct snake *next;
 }sk;
 
 sk *hsk=NULL;
@@ -50,73 +50,73 @@ void end_game(void);
 
 int main(int argc, const char *argv[])
 {
-init_game();
-int key;
-int x=head.x;
-int y=head.y;
-while(1)
-{
-    key=get_key();
-    if(key==PAUSE)
+    init_game();
+    int key;
+    int x=head.x;
+    int y=head.y;
+    while(1)
     {
-        getchar();
-	}
-    else if(key==EXIT)
-    {
-        break;
-	}
-    else
-	{
-     if(head.direc!=key)
-     {
-         head.direc=key;
-         create_node(&head);
-     }
-    }
-    switch(head.direc)
-    {
-        case UP : y--; break;
-        case DOWN : y++; break;
-        case LEFT : x--; break;
-        case RIGHT : x++; break;
-	}
-	if(map[y][x]=='.')
-	{
-        score++;
-        map[y][x]=0;
-        oldfood[0]=food[0];
-        oldfood[1]=food[1];
-        create_food(food);
-        map[food[1]][food[0]]='.';
-        get_food=1;
-        erase_nail=0;
-	}
-    else if(map[y][x]==1)
-        break;
-    head.x=x;
-    head.y=y;
-    map[y][x]=1;
-	if(erase_nail)
-	{
-        map[nail.y][nail.x]=0;
-        old_nail_x=nail.x;
-        old_nail_y=nail.y;
-        switch(nail.direc)
+        key=get_key();
+        if(key==PAUSE)
         {
-            case UP : nail.y--; break;
-            case DOWN : nail.y++; break;
-            case LEFT : nail.x--; break;
-            case RIGHT : nail.x++; break;
+            getchar();
         }
-	}
-    if(cmp_node(get_node()))
-    {
-        del_node(&nail);
+        else if(key==EXIT)
+        {
+            break;
+        }
+        else
+        {
+            if(head.direc!=key)
+            {
+                head.direc=key;
+                create_node(&head);
+            }
+        }
+        switch(head.direc)
+        {
+            case UP : y--; break;
+            case DOWN : y++; break;
+            case LEFT : x--; break;
+            case RIGHT : x++; break;
+        }
+        if(map[y][x]=='.')
+        {
+            score++;
+            map[y][x]=0;
+            oldfood[0]=food[0];
+            oldfood[1]=food[1];
+            create_food(food);
+            map[food[1]][food[0]]='.';
+            get_food=1;
+            erase_nail=0;
+        }
+        else if(map[y][x]==1)
+            break;
+        head.x=x;
+        head.y=y;
+        map[y][x]=1;
+        if(erase_nail)
+        {
+            map[nail.y][nail.x]=0;
+            old_nail_x=nail.x;
+            old_nail_y=nail.y;
+            switch(nail.direc)
+            {
+                case UP : nail.y--; break;
+                case DOWN : nail.y++; break;
+                case LEFT : nail.x--; break;
+                case RIGHT : nail.x++; break;
+            }
+        }
+        if(cmp_node(get_node()))
+        {
+            del_node(&nail);
+        }
+        refresh();
     }
-    refresh();
-}
-end_game();
-return 0;
+    end_game();
+    return 0;
 }
 
 void init_game()
@@ -126,23 +126,23 @@ void init_game()
 
 int get_key()
 {
-int ch;
-/* delay(speed);
-    if(kbhit())
-    ch=getch();
-    if(ch==PAUSE)
-    return PAUSE;
-    else if(ch==EXIT)
-    return EXIT;
-    else if(head.direc==LEFT||head.direc==RIGHT)
-    {
-    if(ch=UP||ch==DOWN)
-    return ch;
-    }
-    else if(ch==LEFT||ch==RIGHT)
-    return ch;
-    return head.direc;
-*/
+    int ch;
+    /* delay(speed);
+     * if(kbhit())
+     * ch=getch();
+     * if(ch==PAUSE)
+     * return PAUSE;
+     * else if(ch==EXIT)
+     * return EXIT;
+     * else if(head.direc==LEFT||head.direc==RIGHT)
+     * {
+     * if(ch=UP||ch==DOWN)
+     * return ch;
+     * }
+     * else if(ch==LEFT||ch==RIGHT)
+     * return ch;
+     * return head.direc;
+     * */
 }
 
 void create_node(part *head)
