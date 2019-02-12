@@ -200,7 +200,7 @@ void refresh(void)
 {
     //darw(head.x,head.y,color);
     if(erase_nail)
-        darw(old_nail_x,old_nail_y,color);
+        //darw(old_nail_x,old_nail_y,color);
     if(get_food)
     {
         //darw(food[0],food[1],color);
