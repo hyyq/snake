@@ -1,134 +1,113 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "snake.h"
 
-static node* create_node(node **head);
-
-static void del_node(node **nail);
-
-static BOOL cmp_node(node *node);
-
-static inline void vector_change(vector *v);
-
-snake *snake_create(uint8_t init_x, uint8_t init_y, uint8_t init_dir, uint8_t len)
+static node_t *node_create(vector_t *v)
 {
-    snake *sk = (snake *)malloc(sizeof(snake));
+    node_t *n = (node_t *)malloc(sizeof(node_t));
 
+    assert(n != NULL);
+
+    memset(n, 0, sizeof(*n));
+
+    if (v != NULL)
+        n->v = *v;
+
+    return n;
+}
+
+static node_t *node_del(node_t *nail)
+{
+    if (nail == NULL)
+        return NULL;
+
+    node_t *n = nail->next;
+
+    free(nail);
+
+    return n;
+}
+
+static inline BOOL node_cmp(node_t *n1, node_t *n2)
+{
+    return n1->v.p.x == n2->v.p.x && n1->v.p.y == n2->v.p.y ? TRUE : FLASE;
+}
+
+static void vector_change(vector_t *v)
+{
+    switch (v->dir)
+    {
+    case UP:
+        v->p.y--;
+        break;
+    case DOWN:
+        v->p.y++;
+        break;
+    case LEFT:
+        v->p.x--;
+        break;
+    case RIGHT:
+        v->p.x++;
+        break;
+    default:
+        break;
+    }
+}
+
+snake_t *snake_create(vector_t const *init_nail, uint8_t len)
+{
+    snake_t *sk = (snake_t *)malloc(sizeof(snake_t));
     assert(sk != NULL);
 
-    sk->head = NULL;
+    sk->nail = node_create(init_nail);
 
-    create_node(&(sk->head));
-    sk->head->n.x = init_x;
-    sk->head->n.y = init_y;
-    sk->head->n.dir = init_dir;
-
-    sk->nail = create_node(&(sk->head));
-
-    vector v = {.x = init_x, .y = init_y, .dir = init_dir};
+    vector_t v = *init_nail;
     for (int i = 0; i < len - 1; i++)
-    {
         vector_change(&v);
-    }
-    sk->head->n.x = v.x;
-    sk->head->n.y = v.y;
-    sk->head->n.dir = v.dir;
+    sk->head = node_create(&v);
+
+    sk->nail->next = sk->head;
 
     return sk;
 }
 
-status snake_move(snake *sk, uint8_t dir)
+void snake_destroy(snake_t *sk)
 {
-    status st = Fine;
-
-    if ((dir == UP && sk->head->n.dir != DOWN) || (dir == DOWN && sk->head->n.dir != UP) || (dir == LEFT && sk->head->n.dir != RIGHT) || (dir == LEFT && sk->head->n.dir != RIGHT))
+    while (sk->nail != NULL)
     {
-        if(dir == sk->head->n.dir)
-        {
-            st = Speed_Up;
-            vector_change(&(sk->head->n));
-        }
-        else
-        {
-            sk->head->n.dir = dir;
-            node *n = create_node(&(sk->head));
-            sk->head->n.x = n->n.x;
-            sk->head->n.y = n->n.y;
-            sk->head->n.dir = n->n.dir;
-        }
-    }
-
-    vector_change(&(sk->head->n));
-
-    //TODO
-
-    return st;
-}
-
-void snake_destroy(snake *sk)
-{
-    while(sk->nail != NULL){
-        del_node(&(sk->nail));
+        sk->nail = node_del(sk->nail);
     }
 
     free(sk);
 }
 
-static node* create_node(node **head)
+void snake_head_move(snake_t *sk, uint8_t dir, coord_t *h)
 {
-    if (*head == NULL)
+    if (sk->head->v.dir == dir || sk->head->v.dir == ~dir)
     {
-        *head = (node *)molloc(sizeof(node));
-
-        assert(*head != NULL);
-
-        (*head)->next = NULL;
-        return *head;
+        vector_change(&(sk->head->v));
+    }
+    else
+    {
+        sk->head->v.dir = dir;
+        vector_t v = sk->head->v;
+        vector_change(&v);
+        sk->head->next = node_create(&v);
+        sk->head = sk->head->next;
     }
 
-    node *n = (node *)malloc(sizeof(node));
-
-    assert(n != NULL);
-
-    n->next = NULL;
-
-    (*head)->next = n;
-    n = *head;
-    *head = (*head)->next;
-
-    return n;
+    *h = sk->head->v.p;
 }
 
-static void del_node(node **nail)
+void snake_nail_move(snake_t *sk, coord_t *n)
 {
-    node *n = *nail;
+    *n = sk->nail->v.p;
+    vector_change(&sk->nail->v);
 
-    if(n == NULL)
-        return;
-    
-    *nail = (*nail)->next;
-
-    free(n);
-}
-
-static inline void vector_change(vector *v)
-{
-    switch (v->dir)
+    if (node_cmp(sk->nail, sk->nail->next) == TRUE)
     {
-        case UP:
-            v->y--;
-            break;
-        case DOWN:
-            v->y++;
-            break;
-        case LEFT:
-            v->x--;
-            break;
-        case RIGHT:
-            v->x++;
-            break;
-        default:
-            break;
+        sk->nail = node_del(sk->nail);
     }
 }

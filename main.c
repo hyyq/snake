@@ -6,67 +6,108 @@
 #include "map.h"
 #include "snake.h"
 
-snake *sk = NULL;
+#define INITIAL_X 0u
+#define INTIAL_Y 0u
+#define INITIAL_DIR LEFT
+#define INITIAL_LEN 4
+
+snake_t *sk = NULL;
 
 uint32_t score;
-
+coord_t food;
 uint32_t cycle;
 
-BOOL got_food;
-BOOL erase_nail;
-
-uint32_t old_nail_x, old_nail_y;
-uint32_t food[2];
-uint32_t oldfood[2];
-
-void init_game(void); //初始化游戏
-
-void generate_food(uint32_t *food);
-
-void end_game(void); //游戏结束处理
-
-uint32_t main(uint32_t argc, const char *argv[])
+void generate_food(coord_t *food)
 {
-    uint32_t key;
-    status st = Fine;
+}
 
-    init_game();
+void game_init(void)
+{
+    map_init();
+    //display_init();
+    //input_set_event_filter();
 
-    while (st != Exit)
+    vector_t const v = {.dir = INITIAL_DIR, .p.x = INITIAL_X, .p.y = INTIAL_Y};
+    sk = snake_create(&v, INITIAL_LEN);
+
+    generate_food(&food);
+    map_update(food.x, food.y, FOOD);
+    display_update(food.x, food.y, FOOD);
+}
+
+int game_over(void)
+{
+    snake_destroy(sk);
+}
+
+void pause();
+BOOL is_exit();
+void you_died();
+
+int game_start(void)
+{
+    coord_t h, n;
+    volatile uint8_t s;
+
+    input_event_t e;
+    BOOL quit = FLASE;
+
+    while (!quit)
     {
-        switch (key = get_key())
+        while (input_event_poll(&e))
         {
-        case PAUSE:
-            st = Pause;
-            break;
-        case EXIT:
-            st = Exit;
-            break;
-        default:
-            st = snake_move(sk, key);
-            break;
+            s = 0;
+
+            switch (e)
+            {
+            case PAUSE:
+                pause();
+                break;
+            case EXIT:
+                quit = is_exit();
+                break;
+            default:
+                snake_head_move(sk, event_decode(&e), &h);
+                s = map_query(h.x, h.y);
+                map_update(h.x, h.y, BODY);
+                display_update(h.x, h.y, BODY);
+                break;
+            }
+
+            switch (s)
+            {
+            case 0:
+                break;
+            case PASS:
+                snake_nail_move(sk, &n);
+                map_update(n.x, n.y, PASS);
+                display_update(n.x, n.y, PASS);
+                break;
+            case FOOD:
+                score += 1;
+                generate_food(&food);
+                map_update(food.x, food.y, FOOD);
+                display_update(food.x, food.y, FOOD);
+                break;
+            case BODY:
+            case OBSTACLE:
+                you_died();
+                quit = TRUE;
+                break;
+            }
+
+            refresh();
         }
-
-        //TODO
-
-        refresh();
     }
 
-    end_game();
     return 0;
 }
 
-void init_game(void)
+int main(uint32_t argc, const char *argv[])
 {
-    map_init();
-    sk = snake_create(INITIAL_X, INTIAL_Y, INITIAL_DIR, 4);
-}
+    game_init();
+    game_start();
+    game_over();
 
-void generate_food(uint32_t *food)
-{
-}
-
-void end_game(void)
-{
-    snake_destroy(sk);
+    return 0;
 }

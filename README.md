@@ -1,2 +1,3 @@
 # snake
+
 a small game

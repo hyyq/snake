@@ -3,48 +3,41 @@
 
 #include <stdint.h>
 
-#include "input.h"
-#include "map.h"
-
 #define BOOL uint32_t
 #define TRUE 1u
 #define FLASE 0u
 
-#define INITIAL_X 0u
-#define INTIAL_Y 0u
-#define INITIAL_DIR LEFT
+#define UP 0u
+#define DOWN ~0u
+#define LEFT 1u
+#define RIGHT ~1u
+
+typedef struct coord
+{
+    uint16_t x, y;
+} coord_t;
 
 typedef struct vector
 {
-    uint32_t x, y;
     uint8_t dir;
-} vector;
+    coord_t p;
+} vector_t;
 
 typedef struct node
 {
-    vector n;
+    vector_t v;
     struct node *next;
-} node;
+} node_t;
 
 typedef struct snake
 {
-    node *head;
-    node *nail;
-} snake;
+    node_t *head;
+    node_t *nail;
+} snake_t;
 
-snake *snake_create(uint8_t init_x, uint8_t init_y, uint8_t init_dir, uint8_t len);
-void snake_destroy(snake *sk);
-
-typedef enum status
-{
-    Fine,
-    Got_Food,
-    Clash,
-    Speed_Up,
-    Pause,
-    Exit
-} status;
-
-status snake_move(snake *sk, uint8_t dir);
+snake_t *snake_create(vector_t const *init_nail, uint8_t len);
+void snake_destroy(snake_t *sk);
+void snake_head_move(snake_t *sk, uint8_t dir, coord_t *h);
+void snake_nail_move(snake_t *sk, coord_t *n);
 
 #endif
